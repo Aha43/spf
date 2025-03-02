@@ -28,7 +28,7 @@ namespace SpfFramework
 
         public T? GetState<T>(string key) => _state.TryGetValue(key, out var value) ? (T)value : default;
 
-        public void SetState<T>(string key, T? value) 
+        public void SetState<T>(string key, T? value)
         {
             if (value == null)
             {
@@ -45,7 +45,7 @@ namespace SpfFramework
 
     public class Spf
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly bool _verbose = false;
         private readonly List<ISpfPromptHandler> _handlers;
         private readonly ISpfExitor? _exitor;
         private readonly ISpfNoPromptMatchHandler? _noMatchHandler;
@@ -54,9 +54,16 @@ namespace SpfFramework
 
         public Spf(string[] args, IServiceCollection services, string baseNamespace = "")
         {
+            if (args.Contains("--verbose")) _verbose = true;
+
             _baseNamespace = baseNamespace.ToLower();
+
+            // Auto-register all handler implementations
+            AutoRegisterHandlers(services);
+            AutoRegisterSingleInstances<ISpfExitor>(services);
+            AutoRegisterSingleInstances<ISpfNoPromptMatchHandler>(services);
+
             var serviceProvider = services.BuildServiceProvider();
-            _serviceProvider = serviceProvider;
             _handlers = DiscoverHandlers(serviceProvider);
             _exitor = serviceProvider.GetService<ISpfExitor>();
             _noMatchHandler = serviceProvider.GetService<ISpfNoPromptMatchHandler>();
@@ -64,10 +71,33 @@ namespace SpfFramework
 
         private static List<ISpfPromptHandler> DiscoverHandlers(IServiceProvider serviceProvider)
         {
-            return [.. AppDomain.CurrentDomain.GetAssemblies()
+            return [.. serviceProvider.GetServices<ISpfPromptHandler>()];
+        }
+
+        private void AutoRegisterHandlers(IServiceCollection services)
+        {
+            var handlerTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(a => a.GetTypes())
-                .Where(t => typeof(ISpfPromptHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-                .Select(t => (ISpfPromptHandler)serviceProvider.GetRequiredService(t))];
+                .Where(t => typeof(ISpfPromptHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            foreach (var handlerType in handlerTypes)
+            {
+                if (_verbose) Console.WriteLine($"Registering handler: {handlerType.Name}");
+                services.AddTransient(typeof(ISpfPromptHandler), handlerType); // Register with interface binding
+            }
+        }
+
+        private void AutoRegisterSingleInstances<T>(IServiceCollection services) where T : class
+        {
+            var instanceType = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes())
+                .FirstOrDefault(t => typeof(T).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+
+            if (instanceType != null)
+            {
+                if (_verbose) Console.WriteLine($"Registering single instance: {instanceType.Name}");
+                services.AddSingleton(typeof(T), instanceType);
+            }
         }
 
         public async Task StartAsync()
@@ -124,7 +154,7 @@ namespace SpfFramework
             {
                 namespacePath = [.. namespacePath.Skip(_baseNamespace.Split('.').Length)];
             }
-            
+
             var handlerPath = namespacePath.Append(typeName.ToLower()).ToArray();
             return handlerPath.SequenceEqual(path.Select(p => p.ToLower()));
         }

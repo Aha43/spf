@@ -8,12 +8,6 @@ class Program
     static async Task Main(string[] args)
     {
         var services = new ServiceCollection();
-        
-        // Registering handlers and services
-        services.AddSingleton<ISpfExitor, CustomExitor>();
-        services.AddSingleton<ISpfNoPromptMatchHandler, CustomNoMatchHandler>();
-        services.AddSingleton<PromptHandlers.Note.Create>();
-        
         var spf = new Spf(args, services, "SpfDemo.PromptHandlers");
         await spf.StartAsync();
     }
