@@ -9,6 +9,7 @@ SPF (**Simple Prompt Framework**) is a lightweight and extensible framework for 
 - **Dependency injection support** for handlers
 - **Custom exit behavior** via `ISpfExitor`
 - **Custom handling of unknown commands** via `ISpfNoPromptMatchHandler`
+- **Configurable options via `SpfOptions`**
 - **Verbose mode (`--verbose`)** for debugging output
 
 ---
@@ -36,15 +37,16 @@ Since SPF is not yet published as a NuGet package, you need to clone the reposit
    ```csharp
    using System;
    using System.Threading.Tasks;
-   using Microsoft.Extensions.DependencyInjection;
    using SpfFramework;
 
    class Program
    {
        static async Task Main(string[] args)
        {
-           var services = new ServiceCollection();
-           var spf = new Spf(args, services, baseNamespace: "MySpfApp.PromptHandlers");
+           var spf = new Spf(args, options =>
+           {
+               options.BaseNamespace = "MySpfApp.PromptHandlers";
+           });
            await spf.StartAsync();
        }
    }
@@ -108,6 +110,26 @@ public class CustomNoMatchHandler : ISpfNoPromptMatchHandler
 
 ---
 
+## Configuring SPF Using `SpfOptions`
+SPF uses the `SpfOptions` class to configure settings. You can pass an options delegate to the `Spf` constructor:
+
+```csharp
+var spf = new Spf(args, options =>
+{
+    options.BaseNamespace = "MyApp.PromptHandlers";
+    options.DisableAutoRegistration = true; // Optional: Prevent automatic handler discovery
+});
+```
+
+### **Available Options:**
+| Option | Description |
+|--------|-------------|
+| `BaseNamespace` | The namespace used to resolve handlers (default: `""`) |
+| `DisableAutoRegistration` | If `true`, disables automatic discovery of handlers (default: `false`) |
+| `Services` | The `IServiceCollection` used for dependency injection |
+
+---
+
 ## Command Routing
 SPF uses **namespace-based routing**, meaning command names are derived from class names and their namespace structure. Example:
 ```csharp
@@ -121,7 +143,10 @@ Command to trigger it:
 
 To avoid users needing to type long paths (e.g., `MyApp PromptHandlers Tasks Complete`), SPF allows specifying a **base namespace**:
 ```csharp
-var spf = new Spf(args, services, baseNamespace: "MyApp.PromptHandlers");
+var spf = new Spf(args, options =>
+{
+    options.BaseNamespace = "MyApp.PromptHandlers";
+});
 ```
 Now, `Tasks Complete my task` works directly.
 
