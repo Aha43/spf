@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
+    <PackageId>SpfFramework</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Aha43</Authors>
+    <Description>Simple Prompt Framework (SPF) - Lightweight structured prompt handling.</Description>
+    <RepositoryUrl>https://github.com/Aha43/spf</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Aha43/spf</PackageProjectUrl>
+    <PackageTags>prompt cli framework</PackageTags>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ThreatWarningAsError>true</ThreatWarningAsError>
