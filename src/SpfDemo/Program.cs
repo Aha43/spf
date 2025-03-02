@@ -1,4 +1,6 @@
-﻿using SpfFramework;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SpfDemo.PromptHandlers.Services;
+using SpfFramework;
 
 namespace SpfDemo;
 
@@ -6,7 +8,12 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        var spf = new Spf(args, o => o.BaseNamespace = "SpfDemo.PromptHandlers");
+        var spf = new Spf(args, o => 
+        {
+            o.BaseNamespace = "SpfDemo.PromptHandlers";
+            o.Services.AddSingleton<INoteRepository, NoteRepository>();
+        });
+
         await spf.StartAsync();
     }
 }

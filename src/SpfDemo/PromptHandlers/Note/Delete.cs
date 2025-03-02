@@ -1,12 +1,12 @@
+using SpfDemo.PromptHandlers.Services;
 using SpfFramework;
 
 namespace SpfDemo.PromptHandlers.Note;
 
-public class Delete : ISpfPromptHandler
+public class Delete(INoteRepository noteRepository) : ISpfPromptHandler
 {
     public async Task HandlePromptAsync(string[] path, string[] input, SpfState state)
     {
-        Console.WriteLine($"Last note deleted");
-        await Task.CompletedTask;
+        await noteRepository.DeleteNoteAsync();
     }
 }
