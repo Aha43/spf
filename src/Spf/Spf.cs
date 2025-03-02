@@ -38,27 +38,37 @@ public class SpfState
     public void ClearState() => _state.Clear();
 }
 
+public class SpfOptions
+{
+    public string BaseNamespace { get; set; } = string.Empty;
+    public bool DisableAutoRegistration { get; set; } = false;
+    public IServiceCollection Services { get; set; } = new ServiceCollection();
+}
+
 public class Spf
 {
     private readonly bool _verbose = false;
     private readonly List<ISpfPromptHandler> _handlers;
-    private readonly ISpfExitor? _exitor;
-    private readonly ISpfNoPromptMatchHandler? _noMatchHandler;
+    internal readonly ISpfExitor? _exitor;
+    internal readonly ISpfNoPromptMatchHandler? _noMatchHandler;
     private readonly SpfState _state = new();
-    private readonly string _baseNamespace;
+    private readonly SpfOptions _options = new();
 
-    public Spf(string[] args, IServiceCollection services, string baseNamespace = "")
+    public Spf(string[] args, Action<SpfOptions>? o = null)
     {
         if (args.Contains("--verbose")) _verbose = true;
 
-        _baseNamespace = baseNamespace.ToLower();
+        o?.Invoke(_options);
 
         // Auto-register all handler implementations
-        AutoRegisterHandlers(services);
-        AutoRegisterSingleInstances<ISpfExitor>(services);
-        AutoRegisterSingleInstances<ISpfNoPromptMatchHandler>(services);
+        if (!_options.DisableAutoRegistration)
+        {
+            AutoRegisterHandlers(_options.Services);
+            AutoRegisterSingleInstances<ISpfExitor>(_options.Services);
+            AutoRegisterSingleInstances<ISpfNoPromptMatchHandler>(_options.Services);
+        }
 
-        var serviceProvider = services.BuildServiceProvider();
+        var serviceProvider = _options.Services.BuildServiceProvider();
         _handlers = DiscoverHandlers(serviceProvider);
         _exitor = serviceProvider.GetService<ISpfExitor>();
         _noMatchHandler = serviceProvider.GetService<ISpfNoPromptMatchHandler>();
@@ -131,7 +141,7 @@ public class Spf
         }
     }
 
-    public static (string[] path, string[] input) TokenizeInput(string[] tokens)
+    internal static (string[] path, string[] input) TokenizeInput(string[] tokens)
     {
         if (tokens.Length == 0) return (Array.Empty<string>(), Array.Empty<string>());
 
@@ -143,17 +153,29 @@ public class Spf
 
     private bool MatchesHandler(ISpfPromptHandler handler, string[] path)
     {
+        if (_verbose) Console.WriteLine($"Checking path: {string.Join(" ", path)}");
+
+        var baseNamespace = _options.BaseNamespace;
+
+        if (_verbose) Console.WriteLine($"  Base namespace: {baseNamespace}");
+        if (_verbose) Console.WriteLine($"  Checking handler: {handler.GetType().Name}");
+
         var typeName = handler.GetType().Name;
         if (typeName.EndsWith("SpfPromptHandler"))
             typeName = typeName[..^15];
 
         var namespacePath = handler.GetType().Namespace?.ToLower().Split('.') ?? [];
-        if (!string.IsNullOrEmpty(_baseNamespace) && namespacePath.Take(_baseNamespace.Split('.').Length).SequenceEqual(_baseNamespace.Split('.')))
+        if (!string.IsNullOrEmpty(baseNamespace) && namespacePath.Take(baseNamespace.Split('.').Length).SequenceEqual(baseNamespace.ToLower().Split('.')))
         {
-            namespacePath = [.. namespacePath.Skip(_baseNamespace.Split('.').Length)];
+            namespacePath = namespacePath.Skip(baseNamespace.Split('.').Length).ToArray(); // 🔹 FIXED
         }
 
         var handlerPath = namespacePath.Append(typeName.ToLower()).ToArray();
-        return handlerPath.SequenceEqual(path.Select(p => p.ToLower()));
+        var normalizedPath = path.Select(p => p.ToLower()).ToArray();
+
+        if (_verbose) Console.WriteLine($"  Handler path: {string.Join(" ", handlerPath)}");
+        if (_verbose) Console.WriteLine($"  Normalized path: {string.Join(" ", normalizedPath)}");
+
+        return handlerPath.SequenceEqual(normalizedPath);
     }
 }

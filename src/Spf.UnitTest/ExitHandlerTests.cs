@@ -1,6 +1,6 @@
 using Moq;
-using SpfFramework;
 using Microsoft.Extensions.DependencyInjection;
+using SpfFramework;
 
 namespace Spf.UnitTest;
 
@@ -10,17 +10,20 @@ public class ExitHandlerTests
     public async Task Exit_Can_Be_Overridden()
     {
         // Arrange: Create a mock exit handler that prevents exit
-        var mockExitor = new Mock<ISpfExitor>();
-        mockExitor.Setup(x => x.ExitAsync(It.IsAny<SpfState>())).ReturnsAsync(false); // Prevents exit
+        var mockExitor = new Mock<ISpfExitor>(MockBehavior.Strict);
+        mockExitor.Setup(x => x.ExitAsync(It.IsAny<SpfState>())).ReturnsAsync(false);
 
         var services = new ServiceCollection();
         services.AddSingleton(mockExitor.Object);
 
-        var spf = new SpfFramework.Spf([], services);
+        var serviceProvider = services.BuildServiceProvider();
+        var spf = new SpfFramework.Spf([], o => {
+            o.Services = services;
+            o.DisableAutoRegistration = true;
+        });
 
-        // Act: Simulate calling the exit handler
-        var state = new SpfState();
-        var canExit = await mockExitor.Object.ExitAsync(state);
+        // Act: Directly access `_exitor` (which is now internal)
+        var canExit = await spf._exitor!.ExitAsync(new SpfState());
 
         // Assert: Ensure exit was prevented
         Assert.False(canExit);
