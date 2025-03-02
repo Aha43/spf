@@ -136,7 +136,7 @@ namespace SpfFramework
             }
         }
 
-        private static (string[] path, string[] input) TokenizeInput(string[] tokens)
+        public static (string[] path, string[] input) TokenizeInput(string[] tokens)
         {
             var lastIndex = tokens.ToList().FindLastIndex(t => char.IsUpper(t.FirstOrDefault()));
             if (lastIndex == -1) return (tokens, Array.Empty<string>());
