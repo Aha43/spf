@@ -1,0 +1,32 @@
+name: Publish to GitHub Packages
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger when pushing a version tag (e.g., v1.0.0)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 9.0.x
+          source-url: https://nuget.pkg.github.com/YourGitHubUsername/index.json
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build the package
+        run: dotnet pack --configuration Release --output nupkgs
+
+      - name: Push package to GitHub Packages
+        run: dotnet nuget push nupkgs/*.nupkg --source "github" --api-key ${{ secrets.GITHUB_TOKEN }}
