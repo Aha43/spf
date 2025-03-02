@@ -1,8 +1,6 @@
-using System;
 using SpfFramework;
 
 namespace SpfDemo.PromptHandlers.Note;
-
 
 public class Create : ISpfPromptHandler
 {
@@ -12,4 +10,3 @@ public class Create : ISpfPromptHandler
         await Task.CompletedTask;
     }
 }
-

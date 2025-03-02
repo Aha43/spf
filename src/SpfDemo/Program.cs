@@ -14,7 +14,7 @@ class Program
         services.AddSingleton<ISpfNoPromptMatchHandler, CustomNoMatchHandler>();
         services.AddSingleton<PromptHandlers.Note.Create>();
         
-        var spf = new Spf(args, services);
+        var spf = new Spf(args, services, "SpfDemo.PromptHandlers");
         await spf.StartAsync();
     }
 }
