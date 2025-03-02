@@ -1,8 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using SpfFramework;
 
-namespace Spf.UnitTest;
+namespace SimplePromptFramework.UnitTest;
 
 public class NoMatchHandlerTests
 {
@@ -14,10 +13,10 @@ public class NoMatchHandlerTests
         mockHandler.Setup(x => x.HandleNoMatch(It.IsAny<string[]>(), It.IsAny<SpfState>()))
                    .ReturnsAsync(true); // ✅ Simulate handling the unknown command
 
-        var spf = new SpfFramework.Spf(Array.Empty<string>(), options =>
+        var spf = new Spf(Array.Empty<string>(), options =>
         {
             options.DisableAutoRegistration = true; // ✅ Prevent SPF from auto-registering handlers
-            options.Services.AddSingleton<ISpfNoPromptMatchHandler>(mockHandler.Object);
+            options.Services.AddSingleton(mockHandler.Object);
         });
 
         var state = new SpfState();

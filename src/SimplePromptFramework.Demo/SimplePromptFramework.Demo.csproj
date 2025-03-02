@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Spf/Spf.csproj" />
+    <ProjectReference Include="../SimplePromptFramework/SimplePromptFramework.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,7 @@
 using Moq;
 using Microsoft.Extensions.DependencyInjection;
-using SpfFramework;
 
-namespace Spf.UnitTest;
+namespace SimplePromptFramework.UnitTest;
 
 public class ExitHandlerTests
 {
@@ -17,7 +16,7 @@ public class ExitHandlerTests
         services.AddSingleton(mockExitor.Object);
 
         var serviceProvider = services.BuildServiceProvider();
-        var spf = new SpfFramework.Spf([], o => {
+        var spf = new Spf([], o => {
             o.Services = services;
             o.DisableAutoRegistration = true;
         });

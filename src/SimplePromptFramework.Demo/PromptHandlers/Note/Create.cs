@@ -1,7 +1,6 @@
-using SpfDemo.PromptHandlers.Services;
-using SpfFramework;
+using SimplePromptFramework.Demo.PromptHandlers.Services;
 
-namespace SpfDemo.PromptHandlers.Note;
+namespace SimplePromptFramework.Demo.PromptHandlers.Note;
 
 public class Create(INoteRepository noteRepository) : ISpfPromptHandler
 {

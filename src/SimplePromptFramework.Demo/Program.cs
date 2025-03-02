@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SpfDemo.PromptHandlers.Services;
-using SpfFramework;
+using SimplePromptFramework.Demo.PromptHandlers.Services;
 
-namespace SpfDemo;
+namespace SimplePromptFramework.Demo;
 
 class Program
 {

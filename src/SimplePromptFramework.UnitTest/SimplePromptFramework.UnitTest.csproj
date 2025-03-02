@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Spf/Spf.csproj" />
+    <ProjectReference Include="../SimplePromptFramework/SimplePromptFramework.csproj" />
   </ItemGroup>
 
   <ItemGroup>

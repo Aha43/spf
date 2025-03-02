@@ -1,4 +1,4 @@
-namespace SpfDemo.PromptHandlers.Services;
+namespace SimplePromptFramework.Demo.PromptHandlers.Services;
 
 public interface INoteRepository
 {

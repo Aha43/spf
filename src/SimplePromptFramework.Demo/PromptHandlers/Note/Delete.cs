@@ -1,7 +1,7 @@
-using SpfDemo.PromptHandlers.Services;
-using SpfFramework;
+using SimplePromptFramework;
+using SimplePromptFramework.Demo.PromptHandlers.Services;
 
-namespace SpfDemo.PromptHandlers.Note;
+namespace SimplePromptFramework.Demo.PromptHandlers.Note;
 
 public class Delete(INoteRepository noteRepository) : ISpfPromptHandler
 {

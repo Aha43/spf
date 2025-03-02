@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SpfFramework;
+namespace SimplePromptFramework;
 
 public interface ISpfPromptHandler
 {
@@ -178,4 +178,25 @@ public class Spf
 
         return handlerPath.SequenceEqual(normalizedPath);
     }
+
+    private static string? ParseStateFileFromArgs(string[] args)
+    {
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (args[i].Equals("--state", StringComparison.OrdinalIgnoreCase))
+            {
+                if (i + 1 < args.Length && !args[i + 1].StartsWith("--"))
+                {
+                    return args[i + 1]; // ✅ Valid state file argument
+                }
+                else
+                {
+                    Console.WriteLine("Error: Missing or invalid argument for --state. Expected: --state <file.json>");
+                    return null; // ✅ Gracefully handle missing argument
+                }
+            }
+        }
+        return null;
+    }
+
 }

@@ -1,7 +1,4 @@
-namespace Spf.UnitTest;
-
-using Xunit;
-using SpfFramework;
+namespace SimplePromptFramework.UnitTest;
 
 public class TokenizationTests
 {

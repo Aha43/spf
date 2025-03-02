@@ -1,7 +1,7 @@
-﻿namespace Spf.UnitTest;
+﻿namespace SimplePromptFramework.UnitTest;
 
 using Xunit;
-using SpfFramework;
+using SimplePromptFramework;
 
 public class SpfStateTests
 {
