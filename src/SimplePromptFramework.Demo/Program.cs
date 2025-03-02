@@ -9,7 +9,7 @@ class Program
     {
         var spf = new Spf(args, o => 
         {
-            o.BaseNamespace = "SpfDemo.PromptHandlers";
+            o.BaseNamespace = "SimplePromptFramework.Demo.PromptHandlers";
             o.Services.AddSingleton<INoteRepository, NoteRepository>();
         });
 

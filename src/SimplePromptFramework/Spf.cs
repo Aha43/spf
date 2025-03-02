@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SimplePromptFramework;
@@ -51,12 +52,14 @@ public class Spf
     private readonly List<ISpfPromptHandler> _handlers;
     internal readonly ISpfExitor? _exitor;
     internal readonly ISpfNoPromptMatchHandler? _noMatchHandler;
-    private readonly SpfState _state = new();
+    private readonly SpfState _state;
     private readonly SpfOptions _options = new();
 
     public Spf(string[] args, Action<SpfOptions>? o = null)
     {
         if (args.Contains("--verbose")) _verbose = true;
+
+        _state = LoadStateFromArgs(args);
 
         o?.Invoke(_options);
 
@@ -197,6 +200,31 @@ public class Spf
             }
         }
         return null;
+    }
+
+    private static SpfState LoadStateFromFile(string file)
+    {
+        var state = new SpfState();
+        if (!File.Exists(file))
+        {
+            Console.WriteLine($"Error: State file not found: {file}");
+            return state; // ✅ Gracefully handle missing file
+        }
+        
+        var json = File.ReadAllText(file);
+        state.SetState("state", JsonSerializer.Deserialize<Dictionary<string, object>>(json));
+
+        return state;
+    }
+
+    private static SpfState LoadStateFromArgs(string[] args)
+    {
+        var file = ParseStateFileFromArgs(args);
+        if (file != null)
+        {
+            return LoadStateFromFile(file);
+        }
+        return new SpfState();
     }
 
 }
