@@ -27,8 +27,8 @@ jobs:
         run: rm -rf nupkgs/*
 
       - name: Build and pack NuGet package
-        run: dotnet pack src/SpfFramework/SpfFramework.csproj --configuration Release --output nupkgs --include-symbols --include-source  
+        run: dotnet pack src/SimplePromptFramework/SimplePromptFramework.csproj --configuration Release --output nupkgs --include-symbols --include-source  
 
       - name: Push package to NuGet.org
-        run: dotnet nuget push nupkgs/*.nupkg --source "nuget.org" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: dotnet nuget push nupkgs/SimplePromptFramework.nupkg --source "nuget.org" --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
       
