@@ -60,6 +60,7 @@ public class Spf
         if (args.Contains("--verbose")) _verbose = true;
 
         _state = LoadStateFromArgs(args);
+        if (_verbose) Console.WriteLine(StateToJson(_state));
 
         o?.Invoke(_options);
 
@@ -225,6 +226,14 @@ public class Spf
             return LoadStateFromFile(file);
         }
         return new SpfState();
+    }
+
+    private static JsonSerializerOptions JsonOptions() => new() { WriteIndented = true };
+
+    private static string StateToJson(SpfState state)
+    {
+        var json = JsonSerializer.Serialize(state, JsonOptions());
+        return json;
     }
 
 }
