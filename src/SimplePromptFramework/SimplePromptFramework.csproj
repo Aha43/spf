@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <PackageId>SpfFramework</PackageId>
+    <PackageId>SimplePromptFramework</PackageId>
     <Version>1.0.0</Version>
     <Authors>Aha43</Authors>
     <Description>Simple Prompt Framework (SPF) - Lightweight structured prompt handling.</Description>
