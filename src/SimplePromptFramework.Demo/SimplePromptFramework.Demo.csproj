@@ -9,7 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../SimplePromptFramework/SimplePromptFramework.csproj" />
+    <PackageReference Include="SimplePromptFramework" Version="1.0.0" />
   </ItemGroup>
+
+  <!-- <ItemGroup>
+    <ProjectReference Include="../SimplePromptFramework/SimplePromptFramework.csproj" />
+  </ItemGroup> -->
 
 </Project>
