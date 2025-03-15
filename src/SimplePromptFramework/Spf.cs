@@ -48,6 +48,8 @@ public class SpfOptions
 
 public class Spf
 {
+    public IServiceProvider ServiceProvider { get; }
+
     private readonly bool _verbose = false;
     private readonly List<ISpfPromptHandler> _handlers;
     internal readonly ISpfExitor? _exitor;
@@ -72,10 +74,10 @@ public class Spf
             AutoRegisterSingleInstances<ISpfNoPromptMatchHandler>(_options.Services);
         }
 
-        var serviceProvider = _options.Services.BuildServiceProvider();
-        _handlers = DiscoverHandlers(serviceProvider);
-        _exitor = serviceProvider.GetService<ISpfExitor>();
-        _noMatchHandler = serviceProvider.GetService<ISpfNoPromptMatchHandler>();
+        ServiceProvider = _options.Services.BuildServiceProvider();
+        _handlers = DiscoverHandlers(ServiceProvider);
+        _exitor = ServiceProvider.GetService<ISpfExitor>();
+        _noMatchHandler = ServiceProvider.GetService<ISpfNoPromptMatchHandler>();
     }
 
     private static List<ISpfPromptHandler> DiscoverHandlers(IServiceProvider serviceProvider)
