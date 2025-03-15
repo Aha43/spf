@@ -1,68 +1,81 @@
 # Simple Prompt Framework (SPF)
 
 ## Overview
-SPF (**Simple Prompt Framework**) is a lightweight and extensible framework for building console-based prompt applications. It allows developers to create structured command-line handlers without the complexity of traditional CLI parsers.
+**SPF (Simple Prompt Framework)** is a lightweight and extensible framework for building console-based prompt applications.  
+It allows developers to create structured command-line handlers while integrating **dependency injection** and **custom routing**.
 
-### Key Features:
+### **🚀 Key Features**
 - **Automatic command discovery** via `ISpfPromptHandler`
 - **Namespace-based routing** for structured commands
 - **Dependency injection support** for handlers
 - **Custom exit behavior** via `ISpfExitor`
 - **Custom handling of unknown commands** via `ISpfNoPromptMatchHandler`
-- **Configurable options via `SpfOptions`**
+- **Base state loading from JSON (`--state config.json`)**
 - **Verbose mode (`--verbose`)** for debugging output
 
 ---
 
-## Getting Started
+## **🔹 Installation**
+SPF is available on **NuGet.org**! You can install it using:
 
-### 1. Clone the Repository
-Since SPF is not yet published as a NuGet package, you need to clone the repository and reference it in your project.
+```sh
+dotnet add package SimplePromptFramework
+```
 
-1. **Clone the SPF repository**:
-   ```sh
-   git clone <your-repo-url>
-   cd spf-framework
-   ```
-2. **Create a new console project**:
-   ```sh
-   dotnet new console -n MySpfApp
-   cd MySpfApp
-   ```
-3. **Add a reference to the SPF project**:
-   ```sh
-   dotnet add reference ../spf-framework/SpfFramework.csproj
-   ```
-4. **Modify `Program.cs` to initialize SPF**:
-   ```csharp
-   using System;
-   using System.Threading.Tasks;
-   using SpfFramework;
+or in your `.csproj`:
 
-   class Program
-   {
-       static async Task Main(string[] args)
-       {
-           var spf = new Spf(args, options =>
-           {
-               options.BaseNamespace = "MySpfApp.PromptHandlers";
-           });
-           await spf.StartAsync();
-       }
-   }
-   ```
+```xml
+<ItemGroup>
+  <PackageReference Include="SimplePromptFramework" Version="1.0.0" />
+</ItemGroup>
+```
 
 ---
 
-## Creating Handlers
+## **🚀 Getting Started**
 
-### **1. Implementing a Prompt Handler**
+### **1️⃣ Create a Console App**
+Run the following command to create a new console project:
+
+```sh
+dotnet new console -n MySpfApp
+cd MySpfApp
+dotnet add package SimplePromptFramework
+```
+
+---
+
+### **2️⃣ Modify `Program.cs` to Initialize SPF**
+```csharp
+using System;
+using System.Threading.Tasks;
+using SimplePromptFramework;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        var spf = new Spf(args);
+        await spf.StartAsync();
+    }
+}
+```
+
+🔹 **Now, your app starts SPF and waits for user input!**  
+🔹 **Users can type commands, and SPF will process them dynamically.**
+
+---
+
+## **🛠 Creating Prompt Handlers**
+SPF discovers **handlers automatically** based on their **namespace and class name**.
+
+### **1️⃣ Implement a Prompt Handler**
 Handlers process user commands. Implement `ISpfPromptHandler`:
 
 ```csharp
 using System;
 using System.Threading.Tasks;
-using SpfFramework;
+using SimplePromptFramework;
 
 namespace MySpfApp.PromptHandlers.Notes
 {
@@ -77,12 +90,14 @@ namespace MySpfApp.PromptHandlers.Notes
 }
 ```
 
-Now, users can enter:
+🔹 Now, users can enter:
 ```
 > Notes Create My first note
 ```
 
-### **2. Custom Exit Handling**
+---
+
+### **2️⃣ Custom Exit Handling**
 To override exit behavior, implement `ISpfExitor`:
 ```csharp
 public class CustomExitor : ISpfExitor
@@ -95,7 +110,9 @@ public class CustomExitor : ISpfExitor
 }
 ```
 
-### **3. Handling Unknown Commands**
+---
+
+### **3️⃣ Handling Unknown Commands**
 To customize handling of unrecognized commands, implement `ISpfNoPromptMatchHandler`:
 ```csharp
 public class CustomNoMatchHandler : ISpfNoPromptMatchHandler
@@ -110,7 +127,35 @@ public class CustomNoMatchHandler : ISpfNoPromptMatchHandler
 
 ---
 
-## Configuring SPF Using `SpfOptions`
+## **⚡ Loading Base State (`--state config.json`)**
+SPF supports **loading static data** from a JSON file at startup.
+
+### **1️⃣ Example JSON File**
+📄 **config.json**
+```json
+{
+    "Latitude": 51.5074,
+    "Longitude": -0.1278,
+    "DefaultEmail": "user@example.com"
+}
+```
+
+### **2️⃣ Pass the JSON File When Starting SPF**
+```sh
+spf --state config.json
+```
+Now, the handlers can access these values using `SpfState`:
+
+```csharp
+double lat = state.GetState<double>("Latitude");
+Console.WriteLine($"Using Latitude: {lat}");
+```
+
+✅ **Ensures that constants are available across multiple commands**.
+
+---
+
+## **⚙️ Configuring SPF**
 SPF uses the `SpfOptions` class to configure settings. You can pass an options delegate to the `Spf` constructor:
 
 ```csharp
@@ -121,7 +166,7 @@ var spf = new Spf(args, options =>
 });
 ```
 
-### **Available Options:**
+### **Available Options**
 | Option | Description |
 |--------|-------------|
 | `BaseNamespace` | The namespace used to resolve handlers (default: `""`) |
@@ -130,45 +175,29 @@ var spf = new Spf(args, options =>
 
 ---
 
-## Command Routing
-SPF uses **namespace-based routing**, meaning command names are derived from class names and their namespace structure. Example:
-```csharp
-namespace MyApp.PromptHandlers.Tasks;
-public class Complete : ISpfPromptHandler { ... }
-```
-Command to trigger it:
-```
-> Tasks Complete my task
-```
-
-To avoid users needing to type long paths (e.g., `MyApp PromptHandlers Tasks Complete`), SPF allows specifying a **base namespace**:
-```csharp
-var spf = new Spf(args, options =>
-{
-    options.BaseNamespace = "MyApp.PromptHandlers";
-});
-```
-Now, `Tasks Complete my task` works directly.
+## **🖥️ PowerShell Integration (Planned for v1.0.1)**
+We plan to support **PowerShell integration**, allowing users to:
+- Run **SPF commands inside PowerShell**.
+- Retain **PowerShell history for SPF commands**.
+- Use SPF's routing while **leveraging PowerShell's environment**.
 
 ---
 
-## Verbose Mode
-Enable debug logging by passing `--verbose` when launching the app:
-```sh
-MySpfApp --verbose
-```
-This prints extra details, like handler registration.
+## **🛠 Roadmap & Future Enhancements**
+✔ **Command aliases** (e.g., `t c` for `Tasks Create`).  
+✔ **History & command recall** across sessions.  
+✔ **Session persistence via `SpfState`**.  
+✔ **PowerShell integration (`spf Notes Create` inside PS terminal).**  
 
 ---
 
-## Roadmap & Future Enhancements
-- **Command aliases** (e.g., `t c` for `Tasks Create`)
-- **History & command recall**
-- **Session persistence via `SpfState`**
+## **🤝 Contributing**
+Pull requests and feedback are welcome! If you encounter issues or have feature requests, submit them via **GitHub Issues**.
 
 ---
 
-## Contributing
-Pull requests and feedback are welcome! If you encounter issues or have feature requests, submit them via GitHub Issues.
+## **📜 License**
+SPF is licensed under the **MIT License**.
 
 Happy coding! 🚀
+
